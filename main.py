@@ -12,7 +12,7 @@ t_0, nu = 0, 6.809e15
 # для Земли
 # t_0, e, nu = 0, 0.01, 398600.4415 * 10 ** 9
 
-t_final = 500000
+t_final = 1000
 t = np.linspace(0, t_final, int(0.8 * t_final + 1))  # для Нептуна
 # t = np.linspace(0, 5400, 5401)  # для Земли
 
@@ -42,7 +42,7 @@ j_tenzor = np.array([[J_z, 0, 0],
 w_rel_init, quat0 = np.array([0, 0, 0.01]), np.array([0, 0, np.sin(np.pi / 20), np.cos(np.pi / 20)])
 w_rel_and_quat0 = np.concatenate([w_rel_init, quat0])
 
-k_w, k_q = 0.65, 0.02
+k_w, k_q = 0.85, 0.04
 
 w_rel_and_quat = odeint(w_rel_and_quat, w_rel_and_quat0, t, args=(j_tenzor, k_w, k_q))
 
@@ -69,51 +69,70 @@ for i in range(0, t.size):
 
     w_ref_t[i] = w_ref(p, t[i], t_0, r[i])
 
+# plt.plot(t / 3600, M_ctrl[:, 0], label='M_ctrl_x')
+# plt.plot(t / 3600, M_ctrl[:, 1], label='M_ctrl_y')
+# plt.plot(t / 3600, M_ctrl[:, 2], label='M_ctrl_z')
+# plt.legend(loc='best')
+# plt.title('График зав-ти управляющего момента M_ctrl от времени')
+# plt.xlabel('t, час')
+# plt.ylabel('M_ctrl, Н*м')
+# plt.grid()
+# plt.show()
 
-plt.plot(t / 3600, M_ctrl[:, 0], label='M_ctrl_x')
-plt.plot(t / 3600, M_ctrl[:, 1], label='M_ctrl_y')
-plt.plot(t / 3600, M_ctrl[:, 2], label='M_ctrl_z')
-plt.legend(loc='best')
-plt.title('График зав-ти управляющего момента M_ctrl от времени')
-plt.xlabel('t, час')
-plt.ylabel('M_ctrl, Н*м')
-plt.grid()
-plt.show()
+# plt.plot(t / 3600, w_rel[:, 0], label='w_rel_x')
+# plt.plot(t / 3600, w_rel[:, 1], label='w_rel_y')
+# plt.plot(t / 3600, w_rel[:, 2], label='w_rel_z')
+# plt.legend(loc='best')
+# plt.title('График зав-ти w_rel от времени')
+# plt.xlabel('t, час')
+# plt.ylabel('w_rel, c^-1')
+# plt.grid()
+# plt.show()
+#
+# plt.plot(t / 3600, w_abs[:, 0], label='w_abs_x')
+# plt.plot(t / 3600, w_abs[:, 1], label='w_abs_y')
+# plt.plot(t / 3600, w_abs[:, 2], label='w_abs_z')
+# plt.legend(loc='best')
+# plt.title('График зав-ти w_abs от времени')
+# plt.xlabel('t, час')
+# plt.ylabel('w_abs, c^-1')
+# plt.grid()
+# plt.show()
+#
+# plt.plot(t / 3600, w_ref_t[:, 0], label='w_ref_x')
+# plt.plot(t / 3600, w_ref_t[:, 1], label='w_ref_y')
+# plt.plot(t / 3600, w_ref_t[:, 2], label='w_ref_z')
+# plt.legend(loc='best')
+# plt.title('График зав-ти w_ref от времени')
+# plt.xlabel('t, час')
+# plt.ylabel('w_ref, c^-1')
+# plt.grid()
+# plt.show()
 
-plt.plot(t / 3600, w_rel[:, 0], label='w_rel_x')
-plt.plot(t / 3600, w_rel[:, 1], label='w_rel_y')
-plt.plot(t / 3600, w_rel[:, 2], label='w_rel_z')
-plt.legend(loc='best')
-plt.title('График зав-ти w_rel от времени')
-plt.xlabel('t, час')
-plt.ylabel('w_rel, c^-1')
-plt.grid()
-plt.show()
 
-plt.plot(t / 3600, w_abs[:, 0], label='w_abs_x')
-plt.plot(t / 3600, w_abs[:, 1], label='w_abs_y')
-plt.plot(t / 3600, w_abs[:, 2], label='w_abs_z')
-plt.legend(loc='best')
-plt.title('График зав-ти w_abs от времени')
-plt.xlabel('t, час')
-plt.ylabel('w_abs, c^-1')
-plt.grid()
-plt.show()
-
-plt.plot(t / 3600, w_ref_t[:, 0], label='w_ref_x')
-plt.plot(t / 3600, w_ref_t[:, 1], label='w_ref_y')
-plt.plot(t / 3600, w_ref_t[:, 2], label='w_ref_z')
-plt.legend(loc='best')
-plt.title('График зав-ти w_ref от времени')
-plt.xlabel('t, час')
-plt.ylabel('w_ref, c^-1')
-plt.grid()
-plt.show()
+t_len = t.size
 
 
 # уравнение на моменты импульса маховиков
 def h_machs(y, t):
     h_mach = y[:3]
     dh_dt = np.zeros(3)
-    dh_dt[:] = -M_ctrl[int(t / t_final * t.size), :] - np.cross(w_abs[int(t / t_final * t.size), :], h_mach)
+    print('mom_ctrl_check = ', M_ctrl[int(t / t_final * t_len - 1), :])
+    print('cross = ', np.cross(w_abs[int(t / t_final * t_len - 1), :], h_mach))
+    dh_dt[:] = -M_ctrl[int(t / t_final * t_len - 1), :] - np.cross(w_abs[int(t / t_final * t_len - 1), :], h_mach)
     return dh_dt
+
+
+h_mach_init = np.zeros(3)
+
+h_mach = odeint(h_machs, h_mach_init, t)
+
+plt.plot(t / 3600, h_mach[:, 0], label='h_mach_x')
+plt.plot(t / 3600, h_mach[:, 1], label='h_mach_y')
+plt.plot(t / 3600, h_mach[:, 2], label='h_mach_z')
+plt.legend(loc='best')
+plt.title('График зав-ти h_mach от времени')
+plt.xlabel('t, час')
+plt.ylabel('H_mach, м^2·кг/с')
+plt.grid()
+plt.show()

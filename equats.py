@@ -18,3 +18,12 @@ def w_rel_and_quat(y, t, j_tenzor, k_w, k_q):
     dydt[3:6] = (quat[3] * w_rel + np.cross(quat[:3], w_rel)) / 2
     dydt[6] = -np.dot(w_rel, quat[:3]) / 2
     return dydt
+
+
+def euler_and_kinematic(y, t, j_tenzor):
+    w_abs, quat = y[:3], y[3:]
+    dydt = np.zeros(7)
+    dydt[:3] =
+    dydt[:3] = np.matmul(LA.inv(j_tenzor), dydt[:3])
+    dydt[3:6] = (quat[3] * w_rel + np.cross(quat[:3], w_rel)) / 2
+    dydt[6] = -np.dot(w_rel, quat[:3]) / 2

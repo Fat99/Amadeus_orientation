@@ -9,8 +9,8 @@ from scipy.spatial.transform import Rotation as R
 
 t_0, nu = 0, 6.809e15
 
-# t_final = 8000
-t_final = 800
+t_final = 8000
+
 t = np.linspace(0, t_final, 5 * t_final + 1)  # для Нептуна
 dt = t[1] - t[0]
 
@@ -27,17 +27,9 @@ quat_rotate = np.array([0, np.sin(angle2 / 2), 0, np.cos(angle2 / 2)])
 quat_init2 = np.array([0, 0, np.sin(angle1 / 2), np.cos(angle1 / 2)])
 quat_final2 = multiply_quaternions(quat_rotate, quat_init2)
 
-# quat_rotate = np.array([0, np.sin(angle2 / 2), 0, np.cos(angle2 / 2)])
-# ch = multiply_quaternions(quat_rotate, quat_init2)
-# print(ch)
-# print(rotate_between_quaternions(quat_init2, ch))
 
 
 # рядом с апоцентром
-# r0 = 1.0e+07 * np.array([1.715573066233160, 2.289071031477311, 0.892592547997959])
-# v0 = 1.0e+04 * np.array([1.701250362854970, -1.101411738217119, -0.469847228124423])
-
-# рядом с перицентром
 r0 = np.array([-3.52839483e+08, -4.51136343e+08, -1.75679247e+08])
 v0 = np.array([-766.20297685, 659.56780191, 277.32758496])
 r_and_v0 = np.concatenate([r0, v0])
